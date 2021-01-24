@@ -43,36 +43,15 @@
       const scene = new THREE.Scene();
 
       {
-        const planeSize = 40;
-
-        const loader = new THREE.TextureLoader();
-        const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/checker.png');
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.magFilter = THREE.NearestFilter;
-        const repeats = planeSize / 2;
-        texture.repeat.set(repeats, repeats);
-
-        const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
-        const planeMat = new THREE.MeshPhongMaterial({
-          map: texture,
-          side: THREE.DoubleSide,
-        });
-        const mesh = new THREE.Mesh(planeGeo, planeMat);
-        mesh.rotation.x = Math.PI * -.5;
-        mesh.position.set(0, -3, 0)
-        scene.add(mesh);
+        const color = 0xFFFFFF;
+        const intensity = 1;
+        const light = new THREE.DirectionalLight(color, intensity);
+        const light2 = new THREE.DirectionalLight(color, intensity);
+        light.position.set(-1, 2, 4);
+        light2.position.set(1, -2, -4);
+        scene.add(light);
+        scene.add(light2);
       }
-      //{
-      //  const color = 0xFFFFFF;
-      //  const intensity = 1;
-      //  const light = new THREE.DirectionalLight(color, intensity);
-      //  const light2 = new THREE.DirectionalLight(color, intensity);
-      //  light.position.set(-1, 2, 4);
-      //  light2.position.set(1, -2, -4);
-      //  scene.add(light);
-      //  scene.add(light2);
-      //}
 
       const boxWidth = 1;
       const boxHeight = 1;
@@ -92,25 +71,6 @@
         }
       }
 
-      {
-        const color = 0xFFFFFF;
-        const intensity = 1;
-        const light = new THREE.PointLight(color, intensity);
-        light.position.set(0, 2, 0);
-        scene.add(light);
-
-        const helper = new THREE.PointLightHelper(light);
-        scene.add(helper);
-
-        const folder = gui.addFolder("light");
-        folder.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color').onChange(requestRenderIfNotRequested);
-        folder.add(light, 'intensity', 0, 2, 0.01).onChange(requestRenderIfNotRequested);
-        folder.add(light, 'distance', 0, 40).onChange(requestRenderIfNotRequested);
-        folder.add(light.position, 'x', -10, 10).onChange(requestRenderIfNotRequested);
-        folder.add(light.position, 'y', 0, 10).onChange(requestRenderIfNotRequested);
-        folder.add(light.position, 'z', -10, 10).onChange(requestRenderIfNotRequested);
-        folder.open();
-      }
 
       function makeInstance(geometry, color, x) {
         const material = new THREE.MeshPhongMaterial({color});
@@ -141,6 +101,26 @@
       makeInstance(geometry, 0x44aa88,  0);
       makeInstance(geometry, 0x8844aa, -2);
       makeInstance(geometry, 0xaa8844,  2);
+
+      var options = {
+        posx: 4,
+        reset: function() {
+          camera.position.z = 8;
+          camera.position.x = 0;
+          camera.position.y = 5;
+        },
+        addcube: function() {
+          makeInstance(geometry, 0xaa8844,  this.posx);
+          this.posx == 2
+          requestRenderIfNotRequested();
+        }
+      }
+
+      {
+        gui.add(options, 'addcube');
+        gui.add(options, 'reset');
+        gui.add(options, 'posx', -10, 10);
+      }
 
       function resizeRendererToDisplaySize(renderer) {
         const canvas = renderer.domElement;
